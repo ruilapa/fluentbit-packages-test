@@ -1,0 +1,124 @@
+---
+driver:
+  name: ec2
+  aws_ssh_key_id: <%= ENV['keypair'] %>
+  shared_credentials_profile: <%= ENV['AWS_PROFILE'] %>
+  region: <%= ENV['AWS_REGION'] %>
+  subnet_id: <%= ENV['AWS_SUBNET'] %>
+  spot_price: <%= ENV['AWS_SPOT_PRICE'] %>
+
+provisioner:
+  name: shell
+  script: 'install-td-agent-bit.sh'
+  arguments: ["-v <%= ENV['version'] %>"]
+
+verifier:
+  name: inspec
+
+platforms:
+  # Amazon Linux 2 (arm64)
+  - name: dev-fluentbit-test-amzn2-arm64
+    driver:
+      instance_type: a1.medium
+      image_search:
+        owner-id: 137112412989
+        name: amzn2-ami-hvm-*-arm64-gp2
+      tags:
+        Name: dev-fluentbit-test-amzn2-arm64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+  # Amazon Linux 2 (amd64)
+  - name: dev-fluentbit-test-amzn2-amd64
+    driver:
+      instance_type: t3.medium
+      image_search:
+        owner-id: 137112412989
+        name: amzn2-ami-hvm-*-x86_64-gp2
+      tags:
+        Name: dev-fluentbit-test-amzn2-amd64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+  # RedHat Linux 7 (amd64)
+  - name: dev-fluentbit-test-rhel7-amd64
+    driver:
+      instance_type: t3.medium
+      image_search:
+        owner-id: 309956199498
+        name: RHEL-7.*
+      tags:
+        Name: dev-fluentbit-test-rhel7-amd64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+  # Debian 9 (amd64)
+  - name: dev-fluentbit-test-debian9-amd64
+    driver:
+      instance_type: t3.medium
+      image_search:
+        owner-id: 379101102735
+        name: debian-stretch-hvm-x86_64*
+      tags:
+        Name: dev-fluentbit-test-debian9-amd64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+  # Debian 10 (amd64)
+  - name: dev-fluentbit-test-debian10-amd64
+    driver:
+      instance_type: t3.medium
+      image_search:
+        owner-id: 136693071363
+        name: debian-10-amd64*
+      tags:
+        Name: dev-fluentbit-test-debian10-amd64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+  # Ubuntu 18 (amd64)
+  - name: dev-fluentbit-test-ubuntu18-amd64
+    driver:
+      instance_type: t3.medium
+      image_search:
+        owner-id: 099720109477
+        name: ubuntu/images/*/ubuntu-*-18.04*
+      tags:
+        Name: dev-fluentbit-test-ubuntu18-amd64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+  # Ubuntu 20 (amd64)
+  - name: dev-fluentbit-test-ubuntu20-amd64
+    driver:
+      instance_type: t3.medium
+      image_search:
+        owner-id: 099720109477
+        name: ubuntu/images/*/ubuntu-*-20.04*
+      tags:
+        Name: dev-fluentbit-test-ubuntu20-amd64
+        environment: 'development'
+        product: 'fluentbit'
+        service: 'test'
+        version: "<%= ENV['version'] %>"
+
+suites:
+  - name: default
+    verifier:
+      inspec_tests:
+        - test/integration/default
+
+transport:
+  ssh_key: ~/.ssh/<%= ENV['keypair'] %>.pem
